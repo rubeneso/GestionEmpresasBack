@@ -81,9 +81,9 @@ public class EmpresaServicio implements IEmpresaServicio{
 		Set<Departamento> departamentos = new HashSet<>();
 		EmpresaDto empresaDto = new EmpresaDto();
 
-		if(input.getDepartamentos() != null) {
-			input.getDepartamentos().forEach(d -> departamentos
-					.add(departamentoRepo.findById(d.getId())
+		if(input.getCodsDepartamentos() != null) {
+			input.getCodsDepartamentos()
+				.forEach(cod -> departamentos.add(departamentoRepo.findById(cod)
 							.orElseThrow(() -> new EntityNotFoundException(Departamento.class, "id", input.getId().toString()))));
 			empresa.setDepartamentos(departamentos);
 		}

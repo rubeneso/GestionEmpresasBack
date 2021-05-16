@@ -45,6 +45,22 @@ public class Empleado implements Serializable {
 	
 	@OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<EmpleadoDepartamento> empleadosDepartamentos = new ArrayList<>();
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Empleado other = (Empleado) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 
 }

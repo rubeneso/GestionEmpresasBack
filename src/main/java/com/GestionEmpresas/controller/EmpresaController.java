@@ -35,10 +35,10 @@ public class EmpresaController {
     public ResponseEntity<ListaGenericDto<EmpresaDto>> findAll(
         @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size, @RequestParam Optional<String> orderBy) {
             
-        ListaGenericDto<EmpresaDto> documentaciones = (page.isPresent() && size.isPresent())
+        ListaGenericDto<EmpresaDto> resultado = (page.isPresent() && size.isPresent())
             ? service.findAll(page.get(), size.get(), orderBy) : service.findAll(orderBy);
 
-        return ResponseEntity.ok(documentaciones);
+        return ResponseEntity.ok(resultado);
     }
 
 	@GetMapping("/{id}")
@@ -65,7 +65,7 @@ public class EmpresaController {
 	@ExceptionHandler({PropertyReferenceException.class, IllegalArgumentException.class})
 	public ResponseEntity<String> handleException(Exception ex)
 	{
-		System.err.println(ex.getMessage());
+		ex.printStackTrace();
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 	}
 	
