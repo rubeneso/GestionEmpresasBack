@@ -11,4 +11,5 @@ public interface IEmpleadoServicio {
 	public ListaGenericDto<EmpleadoDto> findAll(Integer pageNo, Integer pageSize, Optional<String> sortBy);
 	public EmpleadoDto findById(Long id);
 	public EmpleadoDto createOrUpdate(EmpleadoDtoInput eiD);
+	public void deleteById(Long codEmpleado);
 }

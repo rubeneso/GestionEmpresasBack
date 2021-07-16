@@ -19,6 +19,6 @@ public class EmpresaDto {
 	private String descripcion;
 	@JMap
 	private Double potenciaContratada;
-	@JMap
-	private Set<DepartamentoDtoMinimum> departamentos;
+	
+	private Set<Long> codsDepartamentos;
 }

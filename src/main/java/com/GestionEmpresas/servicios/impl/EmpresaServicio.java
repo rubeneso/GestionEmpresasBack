@@ -71,7 +71,7 @@ public class EmpresaServicio implements IEmpresaServicio{
 	}
 
 	@Override
-	public EmpresaDto addEmpresa(EmpresaDtoInput input) {
+	public EmpresaDto createOrUpdate(EmpresaDtoInput input) {
 		if(input.getNombre() == "" || input.getNombre() == null) throw new IllegalArgumentException("Nombre no puede ser nulo o estar vacio");
 		if(input.getPotenciaContratada() == null) input.setPotenciaContratada(0d);
 		
@@ -79,14 +79,16 @@ public class EmpresaServicio implements IEmpresaServicio{
 		BeanUtils.copyProperties(input, empresa);
 
 		Set<Departamento> departamentos = new HashSet<>();
-		EmpresaDto empresaDto = new EmpresaDto();
 
 		if(input.getCodsDepartamentos() != null) {
+			
 			input.getCodsDepartamentos()
 				.forEach(cod -> departamentos.add(departamentoRepo.findById(cod)
 							.orElseThrow(() -> new EntityNotFoundException(Departamento.class, "id", input.getId().toString()))));
 			empresa.setDepartamentos(departamentos);
 		}
+
+		EmpresaDto empresaDto = new EmpresaDto();
 		empresaDto = convertToDto(empresaRepo.save(empresa));
 
 		return empresaDto;
@@ -95,6 +97,9 @@ public class EmpresaServicio implements IEmpresaServicio{
 	public EmpresaDto convertToDto(Empresa entity) {
 		JMapper<EmpresaDto, Empresa> mapper = new JMapper<>(EmpresaDto.class, Empresa.class, jmapperApi);
 		EmpresaDto empresaDto = mapper.getDestination(entity);
+		
+		empresaDto.setCodsDepartamentos(entity.getDepartamentos().stream().map(x -> x.getId()).collect(Collectors.toSet()));
+		
 		return empresaDto;
 	}
 

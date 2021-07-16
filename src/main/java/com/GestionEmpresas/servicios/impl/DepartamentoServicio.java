@@ -1,21 +1,22 @@
 package com.GestionEmpresas.servicios.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.GestionEmpresas.dto.ListaGenericDto;
 import com.GestionEmpresas.dto.input.DepartamentoDtoInput;
 import com.GestionEmpresas.dto.response.DepartamentoDto;
 import com.GestionEmpresas.entity.Departamento;
-import com.GestionEmpresas.entity.Empresa;
-import com.GestionEmpresas.excepciones.idNotFoundException;
+import com.GestionEmpresas.excepciones.EntityNotFoundException;
 import com.GestionEmpresas.repository.DepartamentoRepository;
-import com.GestionEmpresas.repository.EmpresaRepository;
 import com.GestionEmpresas.servicios.IDepartamentoServicio;
 import com.googlecode.jmapper.JMapper;
 import com.googlecode.jmapper.api.JMapperAPI;
@@ -24,42 +25,54 @@ import com.googlecode.jmapper.api.JMapperAPI;
 public class DepartamentoServicio implements IDepartamentoServicio {
 
 	@Autowired
-	private DepartamentoRepository repoDptm;
-
-	@Autowired
-	private EmpresaRepository repoEmpresa;
+	private DepartamentoRepository departamentoRepo;
 
 	@Autowired
 	private JMapperAPI jmapperApi;
 
 	@Override
-	public List<DepartamentoDto> findAll() {
-		ArrayList<DepartamentoDto> listadepartamentos = new ArrayList<>();
-		repoDptm.findAll().forEach(r -> listadepartamentos.add(convertToDto(r)));
-		return listadepartamentos;
+	public ListaGenericDto<DepartamentoDto> findAll(Optional<String> sortBy) {
+		return findAll(0, Integer.MAX_VALUE, sortBy);
+	}
+
+	@Override
+	public ListaGenericDto<DepartamentoDto> findAll(Integer pageNo, Integer pageSize, Optional<String> sortBy) {
+		ListaGenericDto<DepartamentoDto> resultado = new ListaGenericDto<DepartamentoDto>();
+    	
+		Pageable paging = (sortBy.isPresent()) 
+				? PageRequest.of(pageNo, pageSize, Sort.by(sortBy.get()).ascending())
+				: PageRequest.of(pageNo, pageSize, Sort.by("id").ascending());
+    	
+    	Page<Departamento> pagedResult = departamentoRepo.findAll(paging);
+        if(pagedResult.hasContent()) {
+        	resultado.setTotal(pagedResult.getTotalElements());
+        	resultado.setLista(pagedResult.getContent().stream().map(this::convertToDto)
+                                                       .collect(Collectors.toList()));
+        } else {
+            throw new EntityNotFoundException(Departamento.class, "all", 
+                resultado.toString());
+        }
+        
+        return resultado;
 	}
 
 	@Override
 	public DepartamentoDto findById(Long id) {
-		DepartamentoDto dptm = convertToDto(repoDptm.findById(id).orElseThrow(() -> new idNotFoundException(id)));
-		return dptm;
+		DepartamentoDto departamento = convertToDto(departamentoRepo.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException(Departamento.class, "id", id.toString())));
+		return departamento;
 	}
 
 	@Override
-	public DepartamentoDto addDepartamento(DepartamentoDtoInput eiD) {
-		Departamento dptm = new Departamento();
-		BeanUtils.copyProperties(eiD, dptm);
-		Set<Empresa> empresas = new HashSet<>();
+	public DepartamentoDto createOrUpdate(DepartamentoDtoInput input) {
+		Departamento departamento = new Departamento();
+		BeanUtils.copyProperties(input, departamento);
 		
-		eiD.getEmpresas().forEach(e -> empresas.add(repoEmpresa.findById(e.getId()).orElseThrow(() -> new idNotFoundException(eiD.getId()))));
-		dptm.setEmpresas(empresas);
-		DepartamentoDto dptmDto = convertToDto(repoDptm.save(dptm));
-		return dptmDto;
+		return convertToDto(departamentoRepo.save(departamento));
 	}
 
 	private DepartamentoDto convertToDto(Departamento entity) {
-		JMapper<DepartamentoDto, Departamento> mapper = new JMapper<>(DepartamentoDto.class, Departamento.class,
-				jmapperApi);
+		JMapper<DepartamentoDto, Departamento> mapper = new JMapper<>(DepartamentoDto.class, Departamento.class, jmapperApi);
 		DepartamentoDto departamentoDto = mapper.getDestination(entity);
 		return departamentoDto;
 	}

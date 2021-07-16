@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -22,7 +23,7 @@ public class EmpleadoDepartamento implements Serializable{
 	private static final long serialVersionUID = -4957331489836524583L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String cargo;
@@ -34,23 +35,6 @@ public class EmpleadoDepartamento implements Serializable{
 	@ManyToOne
 	@JoinColumn(name = "codDepartamento")
 	private Departamento departamento;
-
-	public EmpleadoDepartamento() {
-		super();
-	}
-
-	public EmpleadoDepartamento(String cargo, Empleado e, Departamento d) {
-		super();
-		this.cargo = cargo;
-		this.empleado = e;
-		this.departamento = d;
-	}
-
-	public EmpleadoDepartamento(Empleado e, Departamento d) {
-		super();
-		this.empleado = e;
-		this.departamento = d;
-	}
 
 	@Override
 	public boolean equals(Object obj) {

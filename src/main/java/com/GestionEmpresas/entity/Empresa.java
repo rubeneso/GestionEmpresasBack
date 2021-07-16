@@ -44,8 +44,8 @@ public class Empresa implements Serializable {
 	@ManyToMany(cascade = { CascadeType.ALL })
 	@JoinTable(
 			name = "EmpresaDepartamento",
-			joinColumns = { @JoinColumn(name = "codDepartamento") }, 
-			inverseJoinColumns = { @JoinColumn(name = "codEmpresa") }
+			joinColumns = { @JoinColumn(name = "codEmpresa") }, 
+			inverseJoinColumns = { @JoinColumn(name = "codDepartamento") }
 		)
     private Set<Departamento> departamentos = new HashSet<>();
 	

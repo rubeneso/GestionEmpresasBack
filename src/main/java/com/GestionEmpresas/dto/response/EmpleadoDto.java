@@ -15,9 +15,9 @@ public class EmpleadoDto {
 	private String nombre;
 	@JMap
 	private String descripcion;
-	@JMap
-	private EmpresaDtoMinimum empresa;
-	@JMap
-	private List<EmpleadoDepartamentoDtoInfoEmpleado> empleadosDepartamentos;
+	@JMap("${empresa.id}")
+	private Long codEmpresa;
+	
+	private List<DepartamentoCargoDto> departamentosCargos;
 
 }

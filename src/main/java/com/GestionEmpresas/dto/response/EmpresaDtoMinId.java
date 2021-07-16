@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class EmpresaDtoMinimum {
-
+public class EmpresaDtoMinId {
+	
 	@JMap
 	private Long id;
-	@JMap
-	private String nombre;
 }

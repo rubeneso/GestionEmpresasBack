@@ -1,6 +1,9 @@
 package com.GestionEmpresas.servicios.impl;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
@@ -12,13 +15,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.GestionEmpresas.dto.ListaGenericDto;
+import com.GestionEmpresas.dto.input.DepartamentoCargoDtoInput;
+import com.GestionEmpresas.dto.input.EmpleadoDepartamentoDtoInput;
 import com.GestionEmpresas.dto.input.EmpleadoDtoInput;
+import com.GestionEmpresas.dto.response.EmpleadoDepartamentoDto;
 import com.GestionEmpresas.dto.response.EmpleadoDto;
 import com.GestionEmpresas.entity.Empleado;
-import com.GestionEmpresas.entity.Empresa;
+import com.GestionEmpresas.entity.EmpleadoDepartamento;
 import com.GestionEmpresas.excepciones.EntityNotFoundException;
 import com.GestionEmpresas.repository.EmpleadoRepository;
 import com.GestionEmpresas.repository.EmpresaRepository;
+import com.GestionEmpresas.servicios.IEmpleadoDepartamentoServicio;
 import com.GestionEmpresas.servicios.IEmpleadoServicio;
 import com.googlecode.jmapper.JMapper;
 import com.googlecode.jmapper.api.JMapperAPI;
@@ -31,6 +38,9 @@ public class EmpleadoServicio implements IEmpleadoServicio {
 
 	@Autowired
 	private EmpresaRepository empresaRepo;
+	
+	@Autowired
+	private IEmpleadoDepartamentoServicio empleadoDepartamentoService;
 
 	@Autowired
 	private JMapperAPI jmapperApi;
@@ -54,7 +64,7 @@ public class EmpleadoServicio implements IEmpleadoServicio {
         	resultado.setLista(pagedResult.getContent().stream().map(this::convertToDto)
                                                        .collect(Collectors.toList()));
         } else {
-            throw new EntityNotFoundException(Empresa.class, "all", 
+            throw new EntityNotFoundException(Empleado.class, "all", 
                 resultado.toString());
         }
         
@@ -77,16 +87,56 @@ public class EmpleadoServicio implements IEmpleadoServicio {
 
 		if(input.getCodEmpresa() != null) {
 			empleado.setEmpresa(empresaRepo.findById(input.getCodEmpresa())
-					.orElseThrow(() -> new EntityNotFoundException(Empresa.class, "id", input.getId().toString())));			
+					.orElseThrow(() -> new EntityNotFoundException(Empleado.class, "id", input.getId().toString())));			
+		}
+		
+		Empleado empleadoGuardado = empleadoRepo.save(empleado);
+		if(input.getDepartamentosCargos() != null) {
+			Set<Long> listaEmpleadosDepartamentosNuevos = new HashSet<>();
+			for(DepartamentoCargoDtoInput depCargo : input.getDepartamentosCargos()) {
+				 	
+				EmpleadoDepartamentoDtoInput empleadoDepartamento = EmpleadoDepartamentoDtoInput.builder()
+						.cargo(depCargo.getCargo())
+						.codEmpleado(empleadoGuardado.getId())
+						.codDepartamento(depCargo.getCodDepartamento())
+						.build();
+				listaEmpleadosDepartamentosNuevos.add(empleadoDepartamentoService.createOrUpdate(empleadoDepartamento).getId());
+			}
+			
+			List<Long> listaEmpleadosDepartamentosViejos = empleadoDepartamentoService.findByEmpleadoId(empleadoGuardado.getId()).stream().map(x -> x.getId()).collect(Collectors.toList());
+			for(Long empDeptId : listaEmpleadosDepartamentosViejos) {
+				if(!listaEmpleadosDepartamentosNuevos.contains(empDeptId)) {
+					empleadoDepartamentoService.deleteById(empDeptId);
+				}
+			}
+			
 		}
 
 		return convertToDto(empleadoRepo.save(empleado));
+	}
+	
+	@Override
+	public void deleteById(Long codEmpleado) {
+		List<Long> listaEmpleadosDepartamentos = empleadoDepartamentoService.findByEmpleadoId(codEmpleado).stream().map(x -> x.getId()).collect(Collectors.toList());
+		listaEmpleadosDepartamentos.forEach(empleadoDepartamento -> empleadoDepartamentoService.deleteById(empleadoDepartamento));
+		
+		empleadoRepo.deleteById(codEmpleado);
 	}
 
 	private EmpleadoDto convertToDto(Empleado entity) {
 		JMapper<EmpleadoDto, Empleado> mapper = new JMapper<>(EmpleadoDto.class, Empleado.class, jmapperApi);
 		EmpleadoDto empleadoDto = mapper.getDestination(entity);
+		
+		empleadoDto.setDepartamentosCargos(empleadoDepartamentoService.findDepartamentoCargoByEmpleadoId(empleadoDto.getId()));
+		
 		return empleadoDto;
+	}
+	
+	public EmpleadoDepartamentoDto convertToDto(EmpleadoDepartamento entity) {
+		JMapper<EmpleadoDepartamentoDto, EmpleadoDepartamento> mapper = new JMapper<>(EmpleadoDepartamentoDto.class,
+				EmpleadoDepartamento.class, jmapperApi);
+		EmpleadoDepartamentoDto empleadoDepartamentoDto = mapper.getDestination(entity);
+		return empleadoDepartamentoDto;
 	}
 
 }

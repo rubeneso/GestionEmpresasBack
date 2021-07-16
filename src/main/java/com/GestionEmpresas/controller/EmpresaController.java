@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mapping.PropertyReferenceException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,50 +28,45 @@ import com.GestionEmpresas.servicios.IEmpresaServicio;
 public class EmpresaController {
 	
 	@Autowired
-	private IEmpresaServicio service;
+	private IEmpresaServicio empresaService;
 
 	@GetMapping
     public ResponseEntity<ListaGenericDto<EmpresaDto>> findAll(
         @RequestParam Optional<Integer> page, @RequestParam Optional<Integer> size, @RequestParam Optional<String> orderBy) {
             
         ListaGenericDto<EmpresaDto> resultado = (page.isPresent() && size.isPresent())
-            ? service.findAll(page.get(), size.get(), orderBy) : service.findAll(orderBy);
+            ? empresaService.findAll(page.get(), size.get(), orderBy) : empresaService.findAll(orderBy);
 
         return ResponseEntity.ok(resultado);
     }
 
 	@GetMapping("/{id}")
-	public ResponseEntity<EmpresaDto> getEmpresaById(@PathVariable(value = "id") Long id) {
+	public ResponseEntity<EmpresaDto> findById(@PathVariable Long id) {
 		try {
-			return new ResponseEntity<EmpresaDto>(service.findById(id), HttpStatus.OK);
+			return ResponseEntity.ok(empresaService.findById(id));
 		}
-		catch (Exception e){
-			System.err.println(e.getClass()+" "+e.getMessage());
-			return new ResponseEntity<EmpresaDto>(HttpStatus.NOT_FOUND);			
+		catch (EntityNotFoundException e){
+			e.printStackTrace();
+			return ResponseEntity.notFound().build();			
 		}
 	}
 
 	@PostMapping("/createOrUpdate")
-	public ResponseEntity<EmpresaDto> addEmpresa(@RequestBody EmpresaDtoInput empresaDtoInput) {
-		try {
-			return new ResponseEntity<EmpresaDto>(this.service.addEmpresa(empresaDtoInput), HttpStatus.OK);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
+	public ResponseEntity<EmpresaDto> createOrUpdate(@RequestBody EmpresaDtoInput input) {
+		return ResponseEntity.ok(this.empresaService.createOrUpdate(input));
 	}
 	
 	@ExceptionHandler({PropertyReferenceException.class, IllegalArgumentException.class})
 	public ResponseEntity<String> handleException(Exception ex)
 	{
 		ex.printStackTrace();
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		return ResponseEntity.badRequest().build();
 	}
 	
 	@ExceptionHandler(EntityNotFoundException.class)
 	public ResponseEntity<String> handleException(EntityNotFoundException ex)
 	{
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+		return ResponseEntity.noContent().build();
 	}
 	
 }

@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class EmpleadoDepartamentoDtoMinimum {
+public class DepartamentoDtoMin {
 
 	@JMap
 	private Long id;
+	@JMap
+	private String nombre;
 }

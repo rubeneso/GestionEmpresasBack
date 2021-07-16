@@ -1,16 +1,15 @@
 package com.GestionEmpresas.dto.input;
 
-import com.GestionEmpresas.dto.response.DepartamentoDtoMinimum;
-import com.GestionEmpresas.dto.response.EmpleadoDtoMinimum;
-
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder(toBuilder = true)
 public class EmpleadoDepartamentoDtoInput {
 	private Long id;
 	private String cargo;
-	private EmpleadoDtoMinimum empleado;
-	private DepartamentoDtoMinimum departamento;
+	private Long codEmpleado;
+	private Long codDepartamento;
 }

@@ -12,9 +12,9 @@ public class EmpleadoDepartamentoDto {
 	@JMap
 	private Long id;
 	@JMap
-	private DepartamentoDtoMinimum departamento;
+	private DepartamentoDtoMin departamento;
 	@JMap
-	private EmpleadoDtoMinimum empleado;
+	private EmpleadoDtoMin empleado;
 	@JMap
 	private String cargo;
 }

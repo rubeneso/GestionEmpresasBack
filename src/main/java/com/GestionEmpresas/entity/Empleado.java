@@ -1,8 +1,8 @@
 package com.GestionEmpresas.entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -44,7 +44,7 @@ public class Empleado implements Serializable {
 	private Empresa empresa;
 	
 	@OneToMany(mappedBy = "empleado", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<EmpleadoDepartamento> empleadosDepartamentos = new ArrayList<>();
+	private Set<EmpleadoDepartamento> empleadosDepartamentos = new HashSet<>();
 
 	@Override
 	public boolean equals(Object obj) {

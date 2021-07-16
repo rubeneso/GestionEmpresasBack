@@ -1,9 +1,7 @@
 package com.GestionEmpresas.entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -41,35 +39,13 @@ public class Departamento implements Serializable{
 	@ManyToMany(cascade = { CascadeType.ALL })
 	@JoinTable(
 		name = "EmpresaDepartamento",
-		joinColumns = { @JoinColumn(name = "codEmpresa") }, 
-		inverseJoinColumns = { @JoinColumn(name = "codDepartamento") }
+		joinColumns = { @JoinColumn(name = "codDepartamento") }, 
+		inverseJoinColumns = { @JoinColumn(name = "codEmpresa") }
 	)
 	private Set<Empresa> empresas = new HashSet<>();
 	
 	@OneToMany(mappedBy = "departamento", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<EmpleadoDepartamento> empleados = new ArrayList<>();
-
-	public Departamento(String nombre, String descripcion) {
-		super();
-		this.nombre = nombre;
-		this.descripcion = descripcion;
-	}
-	
-	public void addEmpleado(Empleado e, String cargo) {
-		EmpleadoDepartamento empleadoDepartamento = new EmpleadoDepartamento(cargo, e, this);
-		empleados.add(empleadoDepartamento);
-		
-		e.getEmpleadosDepartamentos().add(empleadoDepartamento);
-		
-	}
-	
-	public void removeEmpleado(Empleado e) {
-		EmpleadoDepartamento empleadoDepartamento = new EmpleadoDepartamento(e, this);
-				
-		e.getEmpleadosDepartamentos().remove(empleadoDepartamento);
-		empleados.remove(empleadoDepartamento);
-		
-	}
+	private Set<EmpleadoDepartamento> empleados = new HashSet<>();
 
 	@Override
 	public boolean equals(Object obj) {

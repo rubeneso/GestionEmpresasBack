@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class EmpleadoDepartamentoDtoInfoEmpleado {
 
 	@JMap
-	private DepartamentoDtoMinimum departamento;
+	private DepartamentoDtoMin departamento;
 	@JMap
 	private String cargo;
 }

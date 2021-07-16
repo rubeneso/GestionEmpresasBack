@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class EmpleadoDtoMinimum {
+public class EmpleadoDtoMin {
 
 	@JMap
 	private Long id;

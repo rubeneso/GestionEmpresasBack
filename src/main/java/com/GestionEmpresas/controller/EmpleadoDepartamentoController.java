@@ -18,18 +18,18 @@ import com.GestionEmpresas.dto.input.EmpleadoDepartamentoDtoInput;
 import com.GestionEmpresas.dto.response.EmpleadoDepartamentoDto;
 import com.GestionEmpresas.servicios.IEmpleadoDepartamentoServicio;
 
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("/empDep")
+@RequestMapping("/empleadoDepartamento")
 public class EmpleadoDepartamentoController {
 	
 	@Autowired
-	IEmpleadoDepartamentoServicio serv;
+	IEmpleadoDepartamentoServicio empleadoDepartamentoService;
 	
 	@GetMapping("/getAll")
 	public ResponseEntity<List<EmpleadoDepartamentoDto>> getAllNotes() {
 		try {
-			return new ResponseEntity<List<EmpleadoDepartamentoDto>>(serv.findAll(), HttpStatus.OK);
+			return new ResponseEntity<List<EmpleadoDepartamentoDto>>(empleadoDepartamentoService.findAll(), HttpStatus.OK);
 		} catch (Exception e) {
 			System.err.println(e.getClass()+" "+e.getMessage());
 			return new ResponseEntity<List<EmpleadoDepartamentoDto>>(HttpStatus.NOT_FOUND);
@@ -39,7 +39,7 @@ public class EmpleadoDepartamentoController {
 	@GetMapping("/getOne/{id}")
 	public ResponseEntity<EmpleadoDepartamentoDto> getEmpleadoDepartamento(@PathVariable(value = "id") Long id) {
 		try {
-			return new ResponseEntity<EmpleadoDepartamentoDto>(serv.findById(id), HttpStatus.OK);
+			return new ResponseEntity<EmpleadoDepartamentoDto>(empleadoDepartamentoService.findById(id), HttpStatus.OK);
 		} catch (Exception e) {
 			System.err.println(e.getClass()+" "+e.getMessage());
 			return new ResponseEntity<EmpleadoDepartamentoDto>(HttpStatus.NOT_FOUND);
@@ -49,7 +49,7 @@ public class EmpleadoDepartamentoController {
 	@PostMapping("/addOrUpdate")
 	public ResponseEntity<EmpleadoDepartamentoDto> addEmpleadoDepartamento(@RequestBody EmpleadoDepartamentoDtoInput empDepDtoInput) {
 		try {
-			return new ResponseEntity<EmpleadoDepartamentoDto>(this.serv.addEmpleadoDepartamento(empDepDtoInput), HttpStatus.OK);
+			return new ResponseEntity<EmpleadoDepartamentoDto>(this.empleadoDepartamentoService.createOrUpdate(empDepDtoInput), HttpStatus.OK);
 		} catch (Exception e) {
 			System.err.println(e.getClass()+" "+e.getMessage());
 			return new ResponseEntity<EmpleadoDepartamentoDto>(HttpStatus.FAILED_DEPENDENCY);
@@ -59,7 +59,7 @@ public class EmpleadoDepartamentoController {
 	@DeleteMapping("delete/{id}")
 	public ResponseEntity<EmpleadoDepartamentoDto> deleteDepartamento(@PathVariable(value = "id") Long id) {
 		try {
-			this.serv.deleteById(id);
+			this.empleadoDepartamentoService.deleteById(id);
 			return new ResponseEntity<EmpleadoDepartamentoDto>(HttpStatus.OK);
 		} catch (Exception e) {
 			System.err.println(e.getClass()+" "+e.getMessage());
